@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="180" src="./uci-logo.png" alt="Universidad para la Cooperación Internacional">
+  <img width="300" src="./uci-logo.png" alt="Universidad para la Cooperación Internacional">
   <h1 align="center">Procesamiento de Datos JSON</h1>
   <p align="center">Un conjunto de scripts Node.js para transformar y convertir datos JSON a CSV. Este proyecto es útil para aplanar arrays JSON anidados, mapearlos a una nueva estructura y convertirlos a formato CSV</p>
 </p>
