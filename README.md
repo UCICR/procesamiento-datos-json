@@ -52,7 +52,7 @@ Este proyecto está licenciado bajo la Licencia MIT.
 
 ### 🙏 Reconocimientos
 
-[Node.js](https://nodejs.org/en)
-[Módulo fs](https://nodejs.org/api/fs.html)
-[json2csv](https://github.com/juanjoDiaz/json2csv)
-[json-transformer](https://github.com/fonckchain/json-transformer)
+- [Node.js](https://nodejs.org/en)
+- [Módulo fs](https://nodejs.org/api/fs.html)
+- [json2csv](https://github.com/juanjoDiaz/json2csv)
+- [json-transformer](https://github.com/fonckchain/json-transformer)
