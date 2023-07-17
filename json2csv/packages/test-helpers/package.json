@@ -1,0 +1,24 @@
+{
+  "name": "@json2csv/test-helpers",
+  "version": "7.0.1",
+  "description": "Test helper to test the json2csv libraries",
+  "homepage": "http://juanjodiaz.github.io/json2csv",
+  "bugs": {
+    "url": "https://github.com/juanjoDiaz/json2csv/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juanjoDiaz/json2csv.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Juanjo Díaz",
+    "email": "juanjo.diazmo@gmail.com"
+  },
+  "type": "module",
+  "scripts": {
+    "lint": "eslint **/*.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {}
+}

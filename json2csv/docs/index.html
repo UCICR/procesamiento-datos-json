@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>json2csv documentation</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Documentation of json2csv, the most configurable JSON to CSV parser out there.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/buble.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma/css/bulma.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.css" />
+  <link rel="stylesheet"  href="https://cdn.jsdelivr.net/gh/Wikiki/bulma-switch@master/dist/css/bulma-switch.min.css" />
+  <style>
+    .panel-heading, .panel-tabs {
+      margin: 0 !important;
+    }
+
+    .alert {
+      position: fixed;
+      bottom: 3rem;
+      right: 2rem;
+      margin-left: 3rem;
+      max-width: 30rem;
+    }
+
+    .alert h1 {
+      font-size: 1.5em;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    window.$docsify = {
+      name: 'json2csv',
+      repo: 'juanjoDiaz/json2csv',
+      loadSidebar: true,
+      auto2top: true,
+      maxLevel: 4,
+      subMaxLevel: 2,
+      vueMounts: {
+        '#live-parser': {
+          data() {
+            return {
+              showOptions: false,
+              showOptionsForm: true,
+              inputOptions: {
+                ndjson: undefined,
+                fields: undefined,
+              },
+              formattersOptions: {},
+              transformsOptions: {
+                unwind: {},
+                flatten: {},
+              },
+              csvOptions: {
+                defaultValue: undefined,
+                delimiter: undefined,
+                eol: undefined,
+                header: undefined,
+                includeEmptyRows: undefined,
+                withBOM: undefined,
+              },
+              inputJSON: '',
+              outputCSV: '',
+            };
+          },
+          computed: {
+            includeHeader: {
+              get() {
+                return this.csvOptions.header || true;
+              },
+              set(value) {
+                this.csvOptions.header = value;
+              }
+            },
+            unwindConfig() {
+              if (!this.transformsOptions.unwind.paths) return;
+              return {
+                paths: this.transformsOptions.unwind.paths.split(','),
+                blankOut: this.transformsOptions.unwind.blankOut,
+              };
+            },
+            flattenConfig() {
+              if (!this.transformsOptions.flatten.objects && !this.transformsOptions.flatten.arrays) return;
+              return {
+                objects: this.transformsOptions.flatten.objects,
+                arrays: this.transformsOptions.flatten.arrays,
+                separator: this.transformsOptions.flatten.separator,
+              };
+            },
+            configJSON() {
+              const transforms = [];
+              if (this.unwindConfig) {
+                transforms.push(new Json2csvTransforms.unwind(this.unwindConfig));
+              }
+
+              if (this.flattenConfig) {
+                transforms.push(new Json2csvTransforms.flatten(this.flattenConfig));
+              }
+
+              return {
+                ...this.inputOptions,
+                transforms: transforms.length > 0 ? transforms : undefined,
+                fields: this.inputOptions.fields && this.inputOptions.fields.split(','),
+                ...this.csvOptions,
+              };
+            },
+            configText() {
+              let config = JSON.stringify({
+                ...this.inputOptions,
+                transforms: this.unwindConfig || this.flattenConfig ? 'placeholder' : undefined,
+                fields: this.inputOptions.fields && this.inputOptions.fields.split(','),
+                ...this.csvOptions,
+              }, null, 4);
+
+              config = config.replace(/"(\s*)transforms": "placeholder"/m, `"transforms": [
+        ${[
+          this.unwindConfig ? `unwind(${JSON.stringify(this.unwindConfig, null, 4).replace(/\n/g, '\n        ')})` : '',
+          this.flattenConfig ? `flatten(${JSON.stringify(this.flattenConfig, null, 4).replace(/\n/g, '\n        ')})` : ''
+        ].filter(t => t).join(',\n        ')}
+    ]`);
+
+              return config;
+            }
+          },
+          methods: {
+            formatJSON() {
+              try {
+              this.inputJSON = JSON.stringify(JSON.parse(this.inputJSON), null, 4);
+              } catch (err) {
+                this.showError('Error formatting your JSON', err);
+              }
+            },
+            parseJSON() {
+              const parser = new Json2csvStreamParser(this.configJSON);
+              this.outputCSV = '';
+              parser.onData = data => {
+                this.outputCSV += data;
+              };
+              parser.onError = err => this.showError('Error parsing your JSON', err.message);
+              parser.write(this.inputJSON);
+              parser.end();
+            },
+            showError(title, message) {
+              const notification = document.createElement ('div');
+              notification.classList.add('notification', 'is-danger', 'alert');
+              const titleEl = document.createElement ('h1');
+              titleEl.innerText = title;
+              notification.appendChild(titleEl);
+              const messageEl = document.createElement ('div');
+              messageEl.innerText = message;
+              notification.appendChild(messageEl);
+              notification.addEventListener('click', () => document.body.removeChild(notification));
+              document.body.appendChild(notification);
+              setTimeout(() => notification.dispatchEvent(new Event('click')), 2000);
+            }
+          }
+        },
+      },
+      tabs: {
+        sync: true
+      }
+    }
+  </script>
+  <!-- Docsify v4 -->
+  <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
+  <!-- docsify plugins -->
+  <script src="//cdn.jsdelivr.net/npm/docsify-tabs@1"></script>
+  <script src="//cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/vue@3/dist/vue.global.js"></script>
+  <script type="module">
+    import Json2csvStreamParser from "//cdn.jsdelivr.net/gh/juanjoDiaz/json2csv@7.0.1/dist/cdn/plainjs/StreamParser.js";
+    window.Json2csvStreamParser = Json2csvStreamParser;
+    import { flatten, unwind } from "//cdn.jsdelivr.net/gh/juanjoDiaz/json2csv@7.0.1/dist/cdn/transforms/index.js";
+    window.Json2csvTransforms = { flatten, unwind };
+  </script>
+</body>
+</html>

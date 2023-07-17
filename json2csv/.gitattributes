@@ -1,0 +1,2 @@
+* text=auto
+packages/test-helpers/fixtures/csv/eol.csv text eol=crlf
